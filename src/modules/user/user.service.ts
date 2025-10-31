@@ -9,11 +9,12 @@ import AppError from "../../errorHelper/AppError";
 const createUser = async (payload: Partial<IUser>) => {
   const { email, password, ...rest } = payload;
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const isUserExist = await User.findOne({ email });
 
-  if (isUserExist) {
-    throw new AppError(httpStatus.BAD_REQUEST, "User Already Exist.");
-  }
+  // if (isUserExist) {
+  //   throw new AppError(httpStatus.BAD_REQUEST, "User Already Exist.");
+  // }
 
   const hashedPassword = await bcryptjs.hash(
     password as string,

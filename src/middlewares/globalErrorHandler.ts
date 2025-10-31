@@ -3,6 +3,7 @@ import { NextFunction, Request, Response } from "express";
 import { enVars } from "../config/env";
 import AppError from "../errorHelper/AppError";
 import { handleZodError } from "../helpers/handleZodError";
+import { handleDuplicateError } from "../helpers/handleDuplicateError";
 
 export const globalErrorHandler = (
   err: any,
@@ -19,7 +20,12 @@ export const globalErrorHandler = (
   let errorSources: any = [];
 
   // Zod Error
-  if (err.name === "ZodError") {
+  // Duplicate Error
+  if (err.code === 11000) {
+    const simplifiedError = handleDuplicateError(err);
+    statusCode = simplifiedError.statusCode;
+    message = simplifiedError.message;
+  } else if (err.name === "ZodError") {
     const simplifiedError = handleZodError(err);
     statusCode = simplifiedError.statusCode;
     message = simplifiedError.message;
