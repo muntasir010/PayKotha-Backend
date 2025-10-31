@@ -4,6 +4,7 @@ import { enVars } from "../config/env";
 import AppError from "../errorHelper/AppError";
 import { handleZodError } from "../helpers/handleZodError";
 import { handleDuplicateError } from "../helpers/handleDuplicateError";
+import { handleCastError } from "../helpers/handleCastError";
 
 export const globalErrorHandler = (
   err: any,
@@ -19,13 +20,20 @@ export const globalErrorHandler = (
   let message = `Something Went Wrong ${err.message} !!.`;
   let errorSources: any = [];
 
-  // Zod Error
   // Duplicate Error
   if (err.code === 11000) {
     const simplifiedError = handleDuplicateError(err);
     statusCode = simplifiedError.statusCode;
     message = simplifiedError.message;
-  } else if (err.name === "ZodError") {
+  }
+  // ObjectId Error
+  else if (err.name === "CastError") {
+    const simplifiedError = handleCastError(err);
+    statusCode = simplifiedError.statusCode;
+    message = simplifiedError.message;
+  }
+  // Zod Error
+  else if (err.name === "ZodError") {
     const simplifiedError = handleZodError(err);
     statusCode = simplifiedError.statusCode;
     message = simplifiedError.message;
