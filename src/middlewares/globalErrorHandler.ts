@@ -2,6 +2,7 @@
 import { NextFunction, Request, Response } from "express";
 import { enVars } from "../config/env";
 import AppError from "../errorHelper/AppError";
+import { handleZodError } from "../helpers/handleZodError";
 
 export const globalErrorHandler = (
   err: any,
@@ -15,9 +16,15 @@ export const globalErrorHandler = (
   }
   let statusCode = 500;
   let message = `Something Went Wrong ${err.message} !!.`;
+  let errorSources: any = [];
 
- 
-  if (err instanceof AppError) {
+  // Zod Error
+  if (err.name === "ZodError") {
+    const simplifiedError = handleZodError(err);
+    statusCode = simplifiedError.statusCode;
+    message = simplifiedError.message;
+    errorSources = simplifiedError.errorSources;
+  } else if (err instanceof AppError) {
     statusCode = err.statusCode;
     message = err.message;
   } else if (err instanceof Error) {
@@ -28,6 +35,7 @@ export const globalErrorHandler = (
   res.status(statusCode).json({
     success: false,
     message,
+    errorSources,
     err: enVars.NODE_ENV === "development" ? err : null,
     stack: enVars.NODE_ENV === "development" ? err.stack : null,
   });
