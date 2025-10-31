@@ -13,17 +13,21 @@ router.post(
   userControllers.createUser
 );
 
-router.get(
-  "/all-users",
-  checkAuth(Role.ADMIN),
-  userControllers.getAllUsers
-);
+router.get("/:id", checkAuth(Role.ADMIN), userControllers.getUserById);
+
+router.get("/all-users", checkAuth(Role.ADMIN), userControllers.getAllUsers);
 
 router.patch(
   "/:id",
   validateRequest(updateUserZodSchema),
   checkAuth(...Object.values(Role)),
   userControllers.updateUser
+);
+
+router.delete(
+  "/:id",
+  checkAuth(Role.USER, Role.AGENT),
+  userControllers.deleteUser
 );
 
 export const UserRoutes = router;

@@ -21,10 +21,13 @@ const updateUser = catchAsync(
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   async (req: Request, res: Response, next: NextFunction) => {
     const userId = req.params.id;
-    const verifiedToken= req.user;
+    const verifiedToken = req.user;
     const payload = req.body;
-    const user = await UserService.updateUser(userId, payload, verifiedToken as JwtPayload);
-
+    const user = await UserService.updateUser(
+      userId,
+      payload,
+      verifiedToken as JwtPayload
+    );
 
     sendResponse(res, {
       success: true,
@@ -34,6 +37,17 @@ const updateUser = catchAsync(
     });
   }
 );
+
+const getUserById = catchAsync(async (req: Request, res: Response) => {
+  const user = await UserService.getUserById(req.params.id);
+
+  sendResponse(res, {
+    success: true,
+    statusCode: httpStatus.OK,
+    message: "User Retrieved Successfully",
+    data: user,
+  });
+});
 
 const getAllUsers = catchAsync(
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -49,9 +63,23 @@ const getAllUsers = catchAsync(
     });
   }
 );
+const deleteUser = catchAsync(async (req: Request, res: Response) => {
+  const user = req.user as { userId: string };
+  const userId = user.userId;
+  await UserService.deleteUser(userId);
+
+  sendResponse(res, {
+    success: true,
+    statusCode: httpStatus.OK,
+    message: "User deleted successfully",
+    data: null,
+  });
+});
 
 export const userControllers = {
   createUser,
   getAllUsers,
   updateUser,
+  getUserById,
+  deleteUser,
 };

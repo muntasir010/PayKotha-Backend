@@ -80,6 +80,14 @@ const updateUser = async (
   return newUpdateUser;
 };
 
+const getUserById = async (id: string): Promise<IUser | null> => {
+  const user = await User.findById(id);
+  if (!user || user.isDeleted) {
+    throw new AppError(httpStatus.NOT_FOUND, "User not found");
+  }
+  return user;
+};
+
 const getAllUsers = async () => {
   const users = await User.find({});
 
@@ -92,8 +100,20 @@ const getAllUsers = async () => {
   };
 };
 
+const deleteUser = async (id: string): Promise<void> => {
+  const user = await User.findById(id);
+  if (!user || user.isDeleted) {
+    throw new AppError(httpStatus.NOT_FOUND, "User not found");
+  }
+
+  user.isDeleted = true;
+  await user.save();
+};
+
 export const UserService = {
   createUser,
   getAllUsers,
   updateUser,
+  getUserById,
+  deleteUser,
 };
