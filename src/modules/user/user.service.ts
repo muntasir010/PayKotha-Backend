@@ -42,33 +42,42 @@ const updateUser = async (
   }
 
   if (payload.role) {
-    if (decodedToken.role === Role.USER || decodedToken.role === Role.AGENT) {
-      throw new AppError(httpStatus.FORBIDDEN, "You are not authorized");
-    }
-    if (decodedToken.role === Role.ADMIN) {
-      throw new AppError(httpStatus.FORBIDDEN, "You are not authorized");
-    }
-    if (payload.isActive || payload.isVerified || payload.isDeleted) {
-      if (
-        decodedToken.isActive === Role.USER ||
-        decodedToken.isActive === Role.AGENT
-      ) {
-        throw new AppError(httpStatus.FORBIDDEN, "You are not authorized");
-      }
-    }
-    if (payload.password) {
-      payload.password = await bcryptjs.hash(
-        payload.password,
-        enVars.BCRYPT_SALT_ROUND
+    if (decodedToken.role !== Role.ADMIN) {
+      throw new AppError(
+        httpStatus.FORBIDDEN,
+        "You are not authorized to change role"
       );
     }
-
-    const newUpdateUser = await User.findByIdAndUpdate(userId, payload, {
-      new: true,
-      runValidators: true,
-    });
-    return newUpdateUser;
   }
+
+  if (payload.isActive || payload.isVerified || payload.isDeleted) {
+    if (decodedToken.role !== Role.ADMIN) {
+      throw new AppError(
+        httpStatus.FORBIDDEN,
+        "You are not authorized to change user status"
+      );
+    }
+  }
+  if (payload.isActive || payload.isVerified || payload.isDeleted) {
+    if (
+      decodedToken.isActive === Role.USER ||
+      decodedToken.isActive === Role.AGENT
+    ) {
+      throw new AppError(httpStatus.FORBIDDEN, "You are not authorized");
+    }
+  }
+  if (payload.password) {
+    payload.password = await bcryptjs.hash(
+      payload.password,
+      enVars.BCRYPT_SALT_ROUND
+    );
+  }
+
+  const newUpdateUser = await User.findByIdAndUpdate(userId, payload, {
+    new: true,
+    runValidators: true,
+  });
+  return newUpdateUser;
 };
 
 const getAllUsers = async () => {
