@@ -26,9 +26,20 @@ export interface IUser {
   picture?: string;
   address?: string;
   isDeleted?: boolean;
-  isActive?: IsActive;
+  isActive: IsActive;
   isApproved?: boolean;
   role: Role;
   auths: IAuthProviders[];
   wallet?: Types.ObjectId;
+}
+import { Request } from "express";
+
+export interface AuthUser {
+  id: string;
+  email: string;
+  role: string;
+}
+
+export interface AuthRequest extends Request {
+  user?: AuthUser;
 }
