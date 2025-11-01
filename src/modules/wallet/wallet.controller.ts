@@ -557,3 +557,12 @@ export const cashOut = async (req: AuthRequest, res: Response) => {
     data: result,
   });
 };
+
+export const walletControllers = {
+  getWallet,
+  addMoney,
+  withdraw,
+  sendMoney,
+  cashIn,
+  cashOut,
+};

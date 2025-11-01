@@ -17,6 +17,7 @@ const createUser = catchAsync(
     });
   }
 );
+
 const updateUser = catchAsync(
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   async (req: Request, res: Response, next: NextFunction) => {

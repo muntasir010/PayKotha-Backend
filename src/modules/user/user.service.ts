@@ -21,10 +21,11 @@ const createUser = async (payload: Partial<IUser>) => {
     provider: "credential",
     providerId: email as string,
   };
+
   const user = await User.create({
     email,
-    auths: [authProvider],
     password: hashedPassword,
+    auths: [authProvider],
     ...rest,
   });
   return user;
@@ -50,7 +51,7 @@ const updateUser = async (
     }
   }
 
-  if (payload.isActive || payload.isVerified || payload.isDeleted) {
+  if (payload.isActive || payload.isApproved || payload.isDeleted) {
     if (decodedToken.role !== Role.ADMIN) {
       throw new AppError(
         httpStatus.FORBIDDEN,
@@ -58,7 +59,7 @@ const updateUser = async (
       );
     }
   }
-  if (payload.isActive || payload.isVerified || payload.isDeleted) {
+  if (payload.isActive || payload.isApproved || payload.isDeleted) {
     if (
       decodedToken.isActive === Role.USER ||
       decodedToken.isActive === Role.AGENT
