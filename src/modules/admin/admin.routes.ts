@@ -45,12 +45,12 @@ router.patch(
 );
 
 router.get(
-  "/user",
+  "/all-users",
   checkAuth(Role.ADMIN),
   getAllUsers as unknown as express.RequestHandler
 );
 router.patch(
-  "/users/:userId/block",
+  "/user/:userId/block",
   checkAuth(Role.ADMIN),
   blockUser as unknown as express.RequestHandler
 );
