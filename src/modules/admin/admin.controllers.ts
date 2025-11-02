@@ -40,7 +40,7 @@ export const getAllUsers = async (req: AuthRequest, res: Response) => {
   const skip = (page - 1) * limit;
 
   const search = (req.query.search as string) || "";
-  const status = req.query.status as string; // "blocked" | "active"
+  const status = req.query.status as string; 
 
   const filter: Record<string, any> = { role: { $ne: "ADMIN" } };
 
@@ -115,7 +115,7 @@ export const unblockUser = async (req: AuthRequest, res: Response) => {
   const user = await User.findById(userId);
   if (!user) throw new AppError(404, "User not found");
 
-  user.isActive = IsActive.INACTIVE;
+  user.isActive = IsActive.ACTIVE;
   await user.save();
 
   await Wallet.updateMany({ userId }, { isBlocked: false });
