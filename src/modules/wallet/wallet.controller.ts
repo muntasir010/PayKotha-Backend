@@ -99,7 +99,6 @@ export const cashOut = async (req: AuthRequest, res: Response) => {
   const agentId = req.user?.id as string;
   
   const { userId, amount, description:_description  } = req.body;
-  console.log(req.body)
   
 
   const result = await cashOutService(userId, amount, _description, agentId);

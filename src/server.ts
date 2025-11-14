@@ -23,8 +23,7 @@ const startServer = async () => {
   await seedAdmin();
 })();
 
-process.on("unhandledRejection", (err) => {
-  console.log("Unhandled rejection detected... Server Shutting Down...", err);
+process.on("unhandledRejection", () => {
   if (server) {
     server.close(() => {
       process.exit(1);
@@ -33,8 +32,7 @@ process.on("unhandledRejection", (err) => {
   process.exit(1);
 });
 
-process.on("uncaughtException", (err) => {
-  console.log("Uncaught exception detected... Server Shutting Down...", err);
+process.on("uncaughtException", () => {
   if (server) {
     server.close(() => {
       process.exit(1);
@@ -44,7 +42,6 @@ process.on("uncaughtException", (err) => {
 });
 
 process.on("SIGTERM", () => {
-  console.log("SIGTERM signal received... Server Shutting Down...");
   if (server) {
     server.close(() => {
       process.exit(1);
@@ -54,7 +51,6 @@ process.on("SIGTERM", () => {
 });
 
 process.on("SIGINT", () => {
-  console.log("SIGINT signal received... Server Shutting Down...");
   if (server) {
     server.close(() => {
       process.exit(1);

@@ -29,14 +29,6 @@ export const register = async (req: Request, res: Response) => {
     enVars.JWT_ACCESS_EXPIRES
   );
 
-  // Set cookie
-  // res.cookie("token", token, {
-  //   httpOnly: true,
-  //   secure: true,
-  //   sameSite: "none",
-  //    path: "/",
-  //   domain: ".vercel.app",
-  // });
   res.cookie("token", token, {
     httpOnly: true,
     sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
@@ -95,16 +87,10 @@ export const login = async (req: Request, res: Response) => {
     enVars.JWT_ACCESS_EXPIRES
   );
 
-  // res.cookie("token", token, {
-  //   httpOnly: true,
-  //   sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
-  //   secure: process.env.NODE_ENV === "production",
-  // });
-
   res.cookie("token", token, {
     httpOnly: true,
     secure: true,
-    sameSite: "lax",
+   sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
   });
 
   return sendResponse(res, {

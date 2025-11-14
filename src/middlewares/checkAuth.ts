@@ -12,8 +12,6 @@ export const checkAuth = (...authRoles: string[]) =>
   catchAsync(async (req: Request, res: Response, next: NextFunction) => {
     const accessToken = req.headers.authorization?.split(" ")[1];
 
-    console.log("Cookies:", req.cookies);
-    console.log("Header Authorization:", req.headers.authorization);
     if (!accessToken) {
       throw new AppError(403, "No token received");
     }

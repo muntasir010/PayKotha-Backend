@@ -118,9 +118,8 @@ export const unblockUser = async (req: AuthRequest, res: Response) => {
   user.isActive = IsActive.ACTIVE;
   await user.save();
 
-  // const wallets = await Wallet.updateMany({ userId }, { isBlocked: false });
-  const users = await Wallet.updateMany({ userId }, { walletStatus: "active" });
-  console.log(users)
+ await Wallet.updateMany({ userId }, { walletStatus: "active" });
+
 
   return sendResponse(res, {
     success: true,
