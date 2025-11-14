@@ -1,26 +1,37 @@
-import { model, Schema } from "mongoose";
-import { IAuthProviders, IsActive, IUser, Role } from "./user.interface";
-
-const authProviderSchema = new Schema<IAuthProviders>(
-  {
-    provider: { type: String, required: true },
-    providerId: { type: String, required: true },
-  },
-  {
-    versionKey: false,
-    _id: true,
-  }
-);
+import mongoose, { Schema } from "mongoose";
+import bcrypt from "bcryptjs";
+import { IsActive, IUser, Role } from "./user.interface";
 
 const userSchema = new Schema<IUser>(
   {
-    name: { type: String, required: true },
-    email: { type: String, required: true, unique: true },
-    password: { type: String },
-    phone: { type: String },
-    picture: { type: String },
-    address: { type: String },
-    isDeleted: { type: Boolean, default: false },
+    name: {
+      type: String,
+      required: [true, "Name is required"],
+      trim: true,
+    },
+    email: {
+      type: String,
+      required: [true, "Email is required"],
+      unique: true,
+      lowercase: true,
+      trim: true,
+    },
+    phone: {
+      type: String,
+      required: [true, "Phone is required"],
+      unique: true,
+      trim: true,
+    },
+    password: {
+      type: String,
+      required: [true, "Password is required"],
+      minlength: 6,
+      select: false,
+    },
+    role: {
+      type: String,
+      default: Role.USER,
+    },
     isActive: {
       type: String,
       enum: Object.values(IsActive),
@@ -28,20 +39,33 @@ const userSchema = new Schema<IUser>(
     },
     isApproved: {
       type: Boolean,
-      default: false,
+      default: function () {
+        return this.role === "USER" ? true : false;
+      },
     },
-    role: {
-      type: String,
-      enum: Object.values(Role),
-      default: Role.USER,
-    },
-
-    auths: [authProviderSchema],
+    profileImg: {
+      type: String
+    }
   },
   {
-    versionKey: false,
     timestamps: true,
   }
 );
 
-export const User = model<IUser>("User", userSchema);
+// Hash password
+userSchema.pre("save", async function (next) {
+  if (!this.isModified("password")) return next();
+
+  const saltRounds = Number.parseInt(process.env.BCRYPT_SALT_ROUNDS || "12");
+  this.password = await bcrypt.hash(this.password, saltRounds);
+  next();
+});
+
+// Compare password method
+userSchema.methods.comparePassword = async function (
+  candidatePassword: string
+): Promise<boolean> {
+  return bcrypt.compare(candidatePassword, this.password);
+};
+
+export const User = mongoose.model<IUser>("User", userSchema);

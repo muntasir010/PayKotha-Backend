@@ -1,12 +1,12 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import type { Response } from "express";
 import { User } from "../user/user.model";
-import { Wallet } from "../wallet/wallet.model";
 import { Transaction } from "../transaction/transaction.model";
 import { AuthRequest } from "../transaction/transaction.interface";
 import { sendResponse } from "../../utils/sendResponse";
 import AppError from "../../errorHelper/AppError";
 import { IsActive } from "../user/user.interface";
+import Wallet from "../wallet/wallet.model";
 
 // 📊 Overview
 export const getOverview = async (req: AuthRequest, res: Response) => {
@@ -40,7 +40,7 @@ export const getAllUsers = async (req: AuthRequest, res: Response) => {
   const skip = (page - 1) * limit;
 
   const search = (req.query.search as string) || "";
-  const status = req.query.status as string; 
+  const status = req.query.status as string;
 
   const filter: Record<string, any> = { role: { $ne: "ADMIN" } };
 
@@ -118,7 +118,9 @@ export const unblockUser = async (req: AuthRequest, res: Response) => {
   user.isActive = IsActive.ACTIVE;
   await user.save();
 
-  await Wallet.updateMany({ userId }, { isBlocked: false });
+  // const wallets = await Wallet.updateMany({ userId }, { isBlocked: false });
+  const users = await Wallet.updateMany({ userId }, { walletStatus: "active" });
+  console.log(users)
 
   return sendResponse(res, {
     success: true,
@@ -130,7 +132,7 @@ export const unblockUser = async (req: AuthRequest, res: Response) => {
         name: user.name,
         email: user.email,
         isActive: user.isActive,
-      },
+      }
     },
   });
 };
@@ -186,7 +188,8 @@ export const getAllTransactions = async (req: AuthRequest, res: Response) => {
   const limit = Number(req.query.limit) || 10;
   const skip = (page - 1) * limit;
 
-  const { type, status, minAmount, maxAmount, startDate, endDate, search } = req.query;
+  const { type, status, minAmount, maxAmount, startDate, endDate, search } =
+    req.query;
   const filter: Record<string, any> = {};
 
   if (type) filter.type = type;
@@ -255,6 +258,7 @@ export const blockWallet = async (req: AuthRequest, res: Response) => {
   const wallet = await Wallet.findById(walletId);
   if (!wallet) throw new AppError(404, "Wallet not found");
 
+  wallet.walletStatus = "blocked";
   wallet.isBlocked = true;
   await wallet.save();
 
@@ -278,6 +282,7 @@ export const unblockWallet = async (req: AuthRequest, res: Response) => {
   const wallet = await Wallet.findById(walletId);
   if (!wallet) throw new AppError(404, "Wallet not found");
 
+  wallet.walletStatus = "active";
   wallet.isBlocked = false;
   await wallet.save();
 
@@ -303,6 +308,7 @@ export const approveAgent = async (req: AuthRequest, res: Response) => {
   if (user.role !== "AGENT") throw new AppError(400, "User is not an agent");
 
   user.isApproved = true;
+  user.isActive = IsActive.ACTIVE;
   await user.save();
 
   return sendResponse(res, {
@@ -330,6 +336,7 @@ export const suspendAgent = async (req: AuthRequest, res: Response) => {
   if (user.role !== "AGENT") throw new AppError(400, "User is not an agent");
 
   user.isApproved = false;
+  user.isActive = IsActive.BLOCKED;
   await user.save();
 
   return sendResponse(res, {

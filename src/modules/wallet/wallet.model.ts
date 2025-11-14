@@ -1,27 +1,31 @@
-import mongoose, { Schema } from "mongoose"
-import { IWallet } from "./wallet.interface"
+import { model, Schema } from "mongoose";
+import { IWallet } from "./wallet.interface";
 
 const walletSchema = new Schema<IWallet>(
   {
     userId: {
-      type: String,
-      required: [true, "User ID is required"],
-      unique: true,
+      type: Schema.Types.ObjectId,
       ref: "User",
+      required: true,
+      unique: true,
     },
     balance: {
       type: Number,
-      default: 50, // Initial balance 50tk
-      min: [0, "Balance cannot be negative"],
+      required: true,
+      default: 50,
+    },
+    walletStatus: {
+      type: String,
+      enum: ["active", "blocked"],
+      default: "active",
     },
     isBlocked: {
       type: Boolean,
       default: false,
     },
   },
-  {
-    timestamps: true,
-  },
-)
+  { timestamps: true }
+);
 
-export const Wallet = mongoose.model<IWallet>("Wallet", walletSchema)
+const Wallet = model<IWallet>("Wallet", walletSchema);
+export default Wallet;

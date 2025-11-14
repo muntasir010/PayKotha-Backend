@@ -28,7 +28,7 @@ router.get(
   getAllWallets as unknown as express.RequestHandler
 );
 router.get(
-  "/transaction",
+  "/transactions",
   checkAuth(Role.ADMIN),
   getAllTransactions as unknown as express.RequestHandler
 );
@@ -45,28 +45,28 @@ router.patch(
 );
 
 router.get(
-  "/all-users",
+  "/users",
   checkAuth(Role.ADMIN),
   getAllUsers as unknown as express.RequestHandler
 );
 router.patch(
-  "/user/:userId/block",
+  "/users/:userId/block",
   checkAuth(Role.ADMIN),
   blockUser as unknown as express.RequestHandler
 );
 router.patch(
-  "/user/:userId/unblock",
+  "/users/:userId/unblock",
   checkAuth(Role.ADMIN),
   unblockUser as unknown as express.RequestHandler
 );
 
 router.patch(
-  "/agent/:userId/approve",
+  "/agents/:userId/approve",
   checkAuth(Role.ADMIN),
   approveAgent as unknown as express.RequestHandler
 );
 router.patch(
-  "/agent/:userId/suspend",
+  "/agents/:userId/suspend",
   checkAuth(Role.ADMIN),
   suspendAgent as unknown as express.RequestHandler
 );

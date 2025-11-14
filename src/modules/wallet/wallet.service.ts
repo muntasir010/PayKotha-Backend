@@ -1,9 +1,9 @@
 import mongoose from "mongoose";
 import httpStatus from "http-status-codes";
-import { Wallet } from "./wallet.model";
 import { Transaction } from "../transaction/transaction.model";
 import { User } from "../user/user.model";
 import AppError from "../../errorHelper/AppError";
+import Wallet from "./wallet.model";
 
 // ✅ Get Wallet
 export const getWalletService = async (userId: string) => {
@@ -163,10 +163,10 @@ export const sendMoneyService = async (
 
 // ✅ Cash In (Agent)
 export const cashInService = async (
-  agentId: string,
   userId: string,
   amount: number,
-  description = "Cash in by agent"
+  description = "Cash in by agent",
+  agentId: string
 ) => {
   const session = await mongoose.startSession();
   session.startTransaction();
@@ -218,12 +218,13 @@ export const cashInService = async (
   }
 };
 
+
 // ✅ Cash Out (Agent)
 export const cashOutService = async (
-  agentId: string,
   userId: string,
   amount: number,
-  description = "Cash out by agent"
+  description = "Cash out by agent",
+  agentId: string
 ) => {
   const session = await mongoose.startSession();
   session.startTransaction();

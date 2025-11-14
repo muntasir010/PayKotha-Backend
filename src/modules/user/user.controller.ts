@@ -1,86 +1,92 @@
-import { NextFunction, Request, Response } from "express";
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { Request, Response } from "express";
+import { User } from "./user.model";
+import { AuthRequest } from "./user.interface";
+import AppError from "../../errorHelper/AppError";
+import {sendResponse} from "../../utils/sendResponse";
 import httpStatus from "http-status-codes";
-import { UserService } from "./user.service";
-import { JwtPayload } from "jsonwebtoken";
-import { catchAsync } from "../../utils/catchAsync";
-import { sendResponse } from "../../utils/sendResponse";
+import Wallet from "../wallet/wallet.model";
+import catchAsync from "../../utils/catchAsync";
 
-const createUser = catchAsync(
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  async (req: Request, res: Response, next: NextFunction) => {
-    const user = await UserService.createUser(req.body);
-    sendResponse(res, {
-      success: true,
-      statusCode: httpStatus.CREATED,
-      message: "User Created Successfully",
-      data: user,
-    });
+
+export const updateUserProfile = catchAsync(async (req: AuthRequest, res: Response) => {
+  const userId = req.user?.id;
+  const { name, email, avatar } = req.body;
+
+  if (!userId) {
+    throw new AppError(httpStatus.UNAUTHORIZED, "Unauthorized request");
   }
-);
 
-const updateUser = catchAsync(
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  async (req: Request, res: Response, next: NextFunction) => {
-    const userId = req.params.id;
-    const verifiedToken = req.user;
-    const payload = req.body;
-    const user = await UserService.updateUser(
-      userId,
-      payload,
-      verifiedToken as JwtPayload
-    );
+  const updateData: any = {};
+  if (name && name.trim() !== "") updateData.name = name.trim();
+  if (email && email.trim() !== "") updateData.email = email.trim();
+  if (avatar) updateData.avatar = avatar;
 
-    sendResponse(res, {
-      success: true,
-      statusCode: httpStatus.CREATED,
-      message: "User Updated Successfully",
-      data: user,
-    });
+  if (Object.keys(updateData).length === 0) {
+    throw new AppError(httpStatus.BAD_REQUEST, "No valid fields provided to update");
   }
-);
 
-const getUserById = catchAsync(async (req: Request, res: Response) => {
-  const user = await UserService.getUserById(req.params.id);
+  const updatedUser = await User.findByIdAndUpdate(
+    userId,
+    { $set: updateData },
+    { new: true, runValidators: true }
+  ).select("-password");
 
-  sendResponse(res, {
+  if (!updatedUser) {
+    throw new AppError(httpStatus.NOT_FOUND, "User not found");
+  }
+
+  return sendResponse(res, {
     success: true,
     statusCode: httpStatus.OK,
-    message: "User Retrieved Successfully",
-    data: user,
+    message: "Profile updated successfully",
+    data: { user: updatedUser },
   });
 });
 
-const getAllUsers = catchAsync(
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  async (req: Request, res: Response, next: NextFunction) => {
-    const result = await UserService.getAllUsers();
 
-    sendResponse(res, {
+
+export const searchUserByName = catchAsync(async (req: Request, res: Response) => {
+  const { name } = req.query;
+
+  if (!name || (name as string).trim() === "") {
+    throw new AppError(httpStatus.BAD_REQUEST, "Name query is required");
+  }
+
+  const users = await User.find({
+    name: { $regex: (name as string).trim(), $options: "i" },
+  }).limit(10);
+
+  if (!users || users.length === 0) {
+    return sendResponse(res, {
       success: true,
       statusCode: httpStatus.OK,
-      message: "User Retrieved Successfully",
-      data: result.data,
-      meta: result.meta,
+      message: "No users found",
+      data: { users: [] },
     });
   }
-);
-const deleteUser = catchAsync(async (req: Request, res: Response) => {
-  const user = req.user as { userId: string };
-  const userId = user.userId;
-  await UserService.deleteUser(userId);
 
-  sendResponse(res, {
+  const result = await Promise.all(
+    users.map(async (user) => {
+      const wallet = await Wallet.findOne({ userId: user._id });
+      if (!wallet) return null;
+      return {
+        id: user._id,
+        name: user.name,
+        walletId: wallet._id,
+      };
+    })
+  );
+
+  const filteredResult = result.filter(Boolean);
+
+  return sendResponse(res, {
     success: true,
     statusCode: httpStatus.OK,
-    message: "User deleted successfully",
-    data: null,
+    message:
+      filteredResult.length > 0
+        ? "Users found"
+        : "No users found with wallet",
+    data: { users: filteredResult },
   });
 });
-
-export const userControllers = {
-  createUser,
-  getAllUsers,
-  updateUser,
-  getUserById,
-  deleteUser,
-};

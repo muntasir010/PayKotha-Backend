@@ -11,6 +11,18 @@ import { enVars } from "./config/env";
 
 const app = express();
 
+app.use(cookieParser());
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+app.use(
+  cors({
+    origin: [enVars.FRONTEND_URL, "http://localhost:5173"],
+    credentials: true,
+    exposedHeaders: ["Authorization"],
+  })
+);
+
 app.use(
   expressSession({
     secret: enVars.EXPRESS_SESSION_SECRET,
@@ -18,18 +30,13 @@ app.use(
     saveUninitialized: false,
   })
 );
+
 app.use(passport.initialize());
 app.use(passport.session());
-app.use(cookieParser());
-app.set("trust proxy", 1);
-app.use(express.json());
-app.use(
-  cors({
-    origin: enVars.FRONTEND_URL,
-    credentials: true,
-  })
-);
 
+app.set("trust proxy", 1);
+
+// ✅ Routes
 app.use("/api/v1", router);
 
 app.get("/", (req: Request, res: Response) => {
@@ -39,7 +46,6 @@ app.get("/", (req: Request, res: Response) => {
 });
 
 app.use(globalErrorHandler);
-
 app.use(NotFound);
 
 export default app;

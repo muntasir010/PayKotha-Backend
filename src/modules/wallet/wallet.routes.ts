@@ -20,17 +20,17 @@ router.get(
 );
 router.post(
   "/add-money",
-  checkAuth(Role.USER),
+  checkAuth(Role.USER, Role.AGENT),
   walletControllers.addMoney as unknown as express.RequestHandler
 );
 router.post(
   "/withdraw",
-  checkAuth(Role.USER),
+  checkAuth(Role.USER, Role.AGENT),
   walletControllers.withdraw as unknown as express.RequestHandler
 );
 router.post(
   "/send-money",
-  checkAuth(Role.USER),
+  checkAuth(Role.USER, Role.AGENT),
   walletControllers.sendMoney as unknown as express.RequestHandler
 );
 
