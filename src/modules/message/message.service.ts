@@ -6,12 +6,7 @@ const sendMessageIntoDB = async (payload: IMessage) => {
   return result;
 };
 
-const getAllMessagesFromDB = async () => {
-  const result = await Message.find().sort({ createdAt: -1 });
-  return result;
-};
 
 export const MessageService = {
   sendMessageIntoDB,
-  getAllMessagesFromDB,
 };

@@ -14,20 +14,7 @@ const sendMessage = async (req: Request, res: Response) => {
   }
 };
 
-const getAllMessages = async (req: Request, res: Response) => {
-  try {
-    const result = await MessageService.getAllMessagesFromDB();
-    res.status(200).json({
-      success: true,
-      message: 'Messages retrieved successfully!',
-      data: result,
-    });
-  } catch (err) {
-    res.status(500).json({ success: false, message: 'Could not fetch messages', error: err });
-  }
-};
 
 export const MessageController = {
   sendMessage,
-  getAllMessages,
 };
