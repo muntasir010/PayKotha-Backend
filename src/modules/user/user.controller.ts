@@ -1,36 +1,34 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import { Request, Response } from "express";
-import { User } from "./user.model";
-import { AuthRequest } from "./user.interface";
-import AppError from "../../errorHelper/AppError";
-import {sendResponse} from "../../utils/sendResponse";
+import { NextFunction, Request, Response } from "express";
 import httpStatus from "http-status-codes";
-import Wallet from "../wallet/wallet.model";
-import catchAsync from "../../utils/catchAsync";
+import { UserService } from "./user.service";
+import { JwtPayload } from "jsonwebtoken";
+import { catchAsync } from "../../utils/catchAsync";
+import { sendResponse } from "../../utils/sendResponse";
 
-
-export const updateUserProfile = catchAsync(async (req: AuthRequest, res: Response) => {
-  const userId = req.user?.id;
-  const { name, email, avatar } = req.body;
-
-  if (!userId) {
-    throw new AppError(httpStatus.UNAUTHORIZED, "Unauthorized request");
+const createUser = catchAsync(
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  async (req: Request, res: Response, next: NextFunction) => {
+    const user = await UserService.createUser(req.body);
+    sendResponse(res, {
+      success: true,
+      statusCode: httpStatus.CREATED,
+      message: "User Created Successfully",
+      data: user,
+    });
   }
+);
 
-  const updateData: any = {};
-  if (name && name.trim() !== "") updateData.name = name.trim();
-  if (email && email.trim() !== "") updateData.email = email.trim();
-  if (avatar) updateData.avatar = avatar;
-
-  if (Object.keys(updateData).length === 0) {
-    throw new AppError(httpStatus.BAD_REQUEST, "No valid fields provided to update");
-  }
-
-  const updatedUser = await User.findByIdAndUpdate(
-    userId,
-    { $set: updateData },
-    { new: true, runValidators: true }
-  ).select("-password");
+const updateUser = catchAsync(
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  async (req: Request, res: Response, next: NextFunction) => {
+    const userId = req.params.id;
+    const verifiedToken = req.user;
+    const payload = req.body;
+    const user = await UserService.updateUser(
+      userId,
+      payload,
+      verifiedToken as JwtPayload
+    );
 
   if (!updatedUser) {
     throw new AppError(httpStatus.NOT_FOUND, "User not found");

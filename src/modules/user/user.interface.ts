@@ -23,22 +23,8 @@ export interface IUser extends Document {
   phone: string;
   password: string;
   role: Role;
-  isActive: IsActive;
-  isDeleted: boolean;
-  isApproved: boolean;
-  profileImg?: string, 
-  auths: IAuthProvider[];
-  createdAt: Date;
-  updatedAt: Date;
-  comparePassword(candidatePassword: string): Promise<boolean>;
-}
-
-
-export interface ApiResponse<T = any> {
-  success: boolean;
-  message: string;
-  data?: T;
-  error?: string;
+  auths: IAuthProviders[];
+  wallet?: Types.ObjectId;
 }
 
 // src/modules/user/user.interface.ts

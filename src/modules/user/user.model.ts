@@ -37,11 +37,20 @@ const userSchema = new Schema<IUser>(
       enum: Object.values(IsActive),
       default: IsActive.ACTIVE,
     },
+   walletId: {
+      type: Schema.Types.ObjectId,
+      ref: "Wallet",
+      unique: true,
+      sparse: true,
+    },
     isApproved: {
       type: Boolean,
-      default: function () {
-        return this.role === "USER" ? true : false;
-      },
+      default: false,
+    },
+    role: {
+      type: String,
+      enum: Object.values(Role),
+      default: Role.USER,
     },
     profileImg: {
       type: String
