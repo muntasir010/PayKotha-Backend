@@ -1,11 +1,11 @@
 import { Router } from "express";
-import { searchUserByName, updateUserProfile, } from "./user.controller";
 import { checkAuth } from "../../middlewares/checkAuth";
 import { Role } from "./user.interface";
+import { UserController } from "./user.controller";
 
 const router = Router();
 
-router.get("/search", checkAuth(Role.USER,Role.AGENT, Role.ADMIN), searchUserByName);
-router.put("/update", checkAuth(Role.USER,Role.AGENT, Role.ADMIN), updateUserProfile);
+router.get("/search", checkAuth(Role.USER,Role.AGENT, Role.ADMIN), UserController.searchUserByName);
+router.put("/update", checkAuth(Role.USER,Role.AGENT, Role.ADMIN), UserController.updateUser);
 
 export const UserRoutes = router;

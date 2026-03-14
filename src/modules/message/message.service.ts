@@ -1,12 +1,17 @@
 import { IMessage } from './message.interface';
-import { Message } from './message.model';
+import { MessageModel } from './message.model';
 
 const sendMessageIntoDB = async (payload: IMessage) => {
-  const result = await Message.create(payload);
+  const result = await MessageModel.create(payload);
   return result;
 };
 
+const getAllMessagesFromDB = async () => {
+  const result = await MessageModel.find().sort({ createdAt: -1 });
+  return result;
+};
 
 export const MessageService = {
   sendMessageIntoDB,
+  getAllMessagesFromDB,
 };

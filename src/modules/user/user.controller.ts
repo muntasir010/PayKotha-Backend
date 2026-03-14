@@ -1,90 +1,70 @@
-import { NextFunction, Request, Response } from "express";
+import { Request, Response } from "express";
 import httpStatus from "http-status-codes";
+import catchAsync from "../../utils/catchAsync";
 import { UserService } from "./user.service";
-import { JwtPayload } from "jsonwebtoken";
-import { catchAsync } from "../../utils/catchAsync";
 import { sendResponse } from "../../utils/sendResponse";
+import AppError from "../../errorHelper/AppError";
+import { JwtPayload } from "jsonwebtoken";
 
-const createUser = catchAsync(
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  async (req: Request, res: Response, next: NextFunction) => {
-    const user = await UserService.createUser(req.body);
-    sendResponse(res, {
-      success: true,
-      statusCode: httpStatus.CREATED,
-      message: "User Created Successfully",
-      data: user,
-    });
-  }
-);
-
-const updateUser = catchAsync(
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  async (req: Request, res: Response, next: NextFunction) => {
-    const userId = req.params.id;
-    const verifiedToken = req.user;
-    const payload = req.body;
-    const user = await UserService.updateUser(
-      userId,
-      payload,
-      verifiedToken as JwtPayload
-    );
-
-  if (!updatedUser) {
-    throw new AppError(httpStatus.NOT_FOUND, "User not found");
-  }
-
-  return sendResponse(res, {
+const createUser = catchAsync(async (req: Request, res: Response) => {
+  const user = await UserService.createUser(req.body);
+  sendResponse(res, {
     success: true,
-    statusCode: httpStatus.OK,
-    message: "Profile updated successfully",
-    data: { user: updatedUser },
+    statusCode: httpStatus.CREATED,
+    message: "User Registered Successfully",
+    data: user,
   });
 });
 
+const updateUser = catchAsync(async (req: Request, res: Response) => {
+  const userId = req.params.id;
+  const verifiedToken = req.user as JwtPayload;
+  const payload = req.body;
 
+  const result = await UserService.updateUser(userId, payload, verifiedToken);
 
-export const searchUserByName = catchAsync(async (req: Request, res: Response) => {
+  if (!result) {
+    throw new AppError(httpStatus.NOT_FOUND, "User update failed or user not found");
+  }
+
+  sendResponse(res, {
+    success: true,
+    statusCode: httpStatus.OK,
+    message: "User Profile Updated Successfully",
+    data: result,
+  });
+});
+
+const searchUserByName = catchAsync(async (req: Request, res: Response) => {
   const { name } = req.query;
 
   if (!name || (name as string).trim() === "") {
-    throw new AppError(httpStatus.BAD_REQUEST, "Name query is required");
+    throw new AppError(httpStatus.BAD_REQUEST, "User name is required for search");
   }
 
-  const users = await User.find({
-    name: { $regex: (name as string).trim(), $options: "i" },
-  }).limit(10);
+  const result = await UserService.searchUsersWithWallet(name as string);
 
-  if (!users || users.length === 0) {
-    return sendResponse(res, {
-      success: true,
-      statusCode: httpStatus.OK,
-      message: "No users found",
-      data: { users: [] },
-    });
-  }
-
-  const result = await Promise.all(
-    users.map(async (user) => {
-      const wallet = await Wallet.findOne({ userId: user._id });
-      if (!wallet) return null;
-      return {
-        id: user._id,
-        name: user.name,
-        walletId: wallet._id,
-      };
-    })
-  );
-
-  const filteredResult = result.filter(Boolean);
-
-  return sendResponse(res, {
+  sendResponse(res, {
     success: true,
     statusCode: httpStatus.OK,
-    message:
-      filteredResult.length > 0
-        ? "Users found"
-        : "No users found with wallet",
-    data: { users: filteredResult },
+    message: result.length > 0 ? "Users found successfully" : "No users matched your search",
+    data: { users: result },
   });
 });
+
+const getAllUsers = catchAsync(async (req: Request, res: Response) => {
+  const result = await UserService.getAllUsers();
+  sendResponse(res, {
+    success: true,
+    statusCode: httpStatus.OK,
+    message: "All users retrieved successfully",
+    data: result,
+  });
+});
+
+export const UserController = {
+  createUser,
+  updateUser,
+  searchUserByName,
+  getAllUsers,
+};

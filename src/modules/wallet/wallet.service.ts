@@ -3,7 +3,7 @@ import httpStatus from "http-status-codes";
 import { Transaction } from "../transaction/transaction.model";
 import { User } from "../user/user.model";
 import AppError from "../../errorHelper/AppError";
-import Wallet from "./wallet.model";
+import { Wallet } from "./wallet.model";
 
 // ✅ Get Wallet
 export const getWalletService = async (userId: string) => {

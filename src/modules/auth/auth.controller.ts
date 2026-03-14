@@ -2,12 +2,12 @@ import httpStatus from "http-status-codes";
 import type { Request, Response } from "express";
 import { User } from "../user/user.model";
 import AppError from "../../errorHelper/AppError";
-import Wallet from "../wallet/wallet.model";
 import { sendResponse } from "../../utils/sendResponse";
 import { generateToken } from "../../utils/jwt";
 import { enVars } from "../../config/env";
 import { AuthRequest } from "../user/user.interface";
 import catchAsync from "../../utils/catchAsync";
+import { Wallet } from "../wallet/wallet.model";
 
 export const register = async (req: Request, res: Response) => {
   const { name, email, phone, password, role } = req.body;

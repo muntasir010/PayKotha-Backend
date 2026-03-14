@@ -1,6 +1,6 @@
-import mongoose, { Schema } from "mongoose";
-import bcrypt from "bcryptjs";
-import { IsActive, IUser, Role } from "./user.interface";
+import mongoose, { Schema } from "mongoose"
+import bcrypt from "bcryptjs"
+import { IUser, Role } from "./user.interface"
 
 const userSchema = new Schema<IUser>(
   {
@@ -30,51 +30,37 @@ const userSchema = new Schema<IUser>(
     },
     role: {
       type: String,
+      enum: Role,
       default: Role.USER,
     },
     isActive: {
-      type: String,
-      enum: Object.values(IsActive),
-      default: IsActive.ACTIVE,
-    },
-   walletId: {
-      type: Schema.Types.ObjectId,
-      ref: "Wallet",
-      unique: true,
-      sparse: true,
+      type: Boolean,
+      default: true,
     },
     isApproved: {
       type: Boolean,
-      default: false,
+      default: function () {
+        return this.role === Role.AGENT ? true : false
+      },
     },
-    role: {
-      type: String,
-      enum: Object.values(Role),
-      default: Role.USER,
-    },
-    profileImg: {
-      type: String
-    }
   },
   {
     timestamps: true,
-  }
-);
+  },
+)
 
-// Hash password
+// Hash password 
 userSchema.pre("save", async function (next) {
-  if (!this.isModified("password")) return next();
+  if (!this.isModified("password")) return next()
 
-  const saltRounds = Number.parseInt(process.env.BCRYPT_SALT_ROUNDS || "12");
-  this.password = await bcrypt.hash(this.password, saltRounds);
-  next();
-});
+  const saltRounds = Number.parseInt(process.env.BCRYPT_SALT_ROUNDS || "12")
+  this.password = await bcrypt.hash(this.password, saltRounds)
+  next()
+})
 
 // Compare password method
-userSchema.methods.comparePassword = async function (
-  candidatePassword: string
-): Promise<boolean> {
-  return bcrypt.compare(candidatePassword, this.password);
-};
+userSchema.methods.comparePassword = async function (candidatePassword: string): Promise<boolean> {
+  return bcrypt.compare(candidatePassword, this.password)
+}
 
-export const User = mongoose.model<IUser>("User", userSchema);
+export const User = mongoose.model<IUser>("User", userSchema)

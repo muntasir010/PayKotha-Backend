@@ -1,12 +1,12 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import type { Response } from "express";
-import { User } from "../user/user.model";
 import { Transaction } from "../transaction/transaction.model";
 import { AuthRequest } from "../transaction/transaction.interface";
 import { sendResponse } from "../../utils/sendResponse";
 import AppError from "../../errorHelper/AppError";
+import { Wallet } from "../wallet/wallet.model";
+import { User } from "../user/user.model";
 import { IsActive } from "../user/user.interface";
-import Wallet from "../wallet/wallet.model";
 
 // 📊 Overview
 export const getOverview = async (req: AuthRequest, res: Response) => {

@@ -17,14 +17,18 @@ export interface IAuthProvider {
 }
 
 export interface IUser extends Document {
-  _id: string;
-  name: string;
-  email: string;
-  phone: string;
-  password: string;
-  role: Role;
-  auths: IAuthProviders[];
-  wallet?: Types.ObjectId;
+  _id: string
+  name: string
+  email: string
+  phone: string
+  profileImg: string
+  password: string
+  role: Role
+  isActive: boolean
+  isApproved: boolean // agent
+  createdAt: Date
+  updatedAt: Date
+    comparePassword(candidatePassword: string): Promise<boolean>
 }
 
 // src/modules/user/user.interface.ts

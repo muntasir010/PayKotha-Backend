@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Response } from "express";
 import httpStatus from "http-status-codes";
 import { AuthRequest } from "../transaction/transaction.interface";
