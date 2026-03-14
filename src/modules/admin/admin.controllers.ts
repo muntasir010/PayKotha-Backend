@@ -7,6 +7,7 @@ import AppError from "../../errorHelper/AppError";
 import { Wallet } from "../wallet/wallet.model";
 import { User } from "../user/user.model";
 import { IsActive } from "../user/user.interface";
+import { WalletStatus } from "../wallet/wallet.interface";
 
 // 📊 Overview
 export const getOverview = async (req: AuthRequest, res: Response) => {
@@ -118,8 +119,7 @@ export const unblockUser = async (req: AuthRequest, res: Response) => {
   user.isActive = IsActive.ACTIVE;
   await user.save();
 
- await Wallet.updateMany({ userId }, { walletStatus: "active" });
-
+  await Wallet.updateMany({ userId }, { walletStatus: "active" });
 
   return sendResponse(res, {
     success: true,
@@ -131,7 +131,7 @@ export const unblockUser = async (req: AuthRequest, res: Response) => {
         name: user.name,
         email: user.email,
         isActive: user.isActive,
-      }
+      },
     },
   });
 };
@@ -159,7 +159,7 @@ export const getAllWallets = async (req: AuthRequest, res: Response) => {
       [w.userId?.name, w.userId?.email, w.userId?.phone]
         .join(" ")
         .toLowerCase()
-        .includes(search.toLowerCase())
+        .includes(search.toLowerCase()),
     );
   }
 
@@ -257,7 +257,7 @@ export const blockWallet = async (req: AuthRequest, res: Response) => {
   const wallet = await Wallet.findById(walletId);
   if (!wallet) throw new AppError(404, "Wallet not found");
 
-  wallet.walletStatus = "blocked";
+  wallet.walletStatus = WalletStatus.BLOCKED;
   wallet.isBlocked = true;
   await wallet.save();
 
@@ -281,7 +281,7 @@ export const unblockWallet = async (req: AuthRequest, res: Response) => {
   const wallet = await Wallet.findById(walletId);
   if (!wallet) throw new AppError(404, "Wallet not found");
 
-  wallet.walletStatus = "active";
+  wallet.walletStatus = WalletStatus.ACTIVE;
   wallet.isBlocked = false;
   await wallet.save();
 

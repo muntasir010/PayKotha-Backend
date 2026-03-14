@@ -1,6 +1,6 @@
-import mongoose, { Schema } from "mongoose"
-import bcrypt from "bcryptjs"
-import { IUser, Role } from "./user.interface"
+import mongoose, { Schema } from "mongoose";
+import bcrypt from "bcryptjs";
+import { IsActive, IUser, Role } from "./user.interface";
 
 const userSchema = new Schema<IUser>(
   {
@@ -34,33 +34,36 @@ const userSchema = new Schema<IUser>(
       default: Role.USER,
     },
     isActive: {
-      type: Boolean,
-      default: true,
+      type: String,
+      isActive: IsActive,
+      default: IsActive.ACTIVE,
     },
     isApproved: {
       type: Boolean,
       default: function () {
-        return this.role === Role.AGENT ? true : false
+        return this.role === Role.AGENT ? true : false;
       },
     },
   },
   {
     timestamps: true,
   },
-)
+);
 
-// Hash password 
+// Hash password
 userSchema.pre("save", async function (next) {
-  if (!this.isModified("password")) return next()
+  if (!this.isModified("password")) return next();
 
-  const saltRounds = Number.parseInt(process.env.BCRYPT_SALT_ROUNDS || "12")
-  this.password = await bcrypt.hash(this.password, saltRounds)
-  next()
-})
+  const saltRounds = Number.parseInt(process.env.BCRYPT_SALT_ROUNDS || "12");
+  this.password = await bcrypt.hash(this.password, saltRounds);
+  next();
+});
 
 // Compare password method
-userSchema.methods.comparePassword = async function (candidatePassword: string): Promise<boolean> {
-  return bcrypt.compare(candidatePassword, this.password)
-}
+userSchema.methods.comparePassword = async function (
+  candidatePassword: string,
+): Promise<boolean> {
+  return bcrypt.compare(candidatePassword, this.password);
+};
 
-export const User = mongoose.model<IUser>("User", userSchema)
+export const User = mongoose.model<IUser>("User", userSchema);

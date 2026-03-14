@@ -1,7 +1,7 @@
 import { enVars } from "../config/env";
 import { IAuthProvider, IUser, Role } from "../modules/user/user.interface";
 import { User } from "../modules/user/user.model";
-import bcryptjs from "bcryptjs";
+// import bcryptjs from "bcryptjs";
 
 export const seedAdmin = async() => {
     try{
@@ -11,7 +11,7 @@ export const seedAdmin = async() => {
         };
 
 
-        const hashedPassword = await bcryptjs.hash(enVars.ADMIN_PASSWORD, Number(enVars.BCRYPT_SALT_ROUND));
+        // const hashedPassword = await bcryptjs.hash(enVars.ADMIN_PASSWORD, Number(enVars.BCRYPT_SALT_ROUND));
 
         const authProvider : IAuthProvider = {
             provider: "credentials",
@@ -19,10 +19,11 @@ export const seedAdmin = async() => {
         }
 
         const payload: Partial<IUser> = {
-            name: "Admin",
+            name: "Pay Admin",
             role: Role.ADMIN,
             email: enVars.ADMIN_EMAIL,
-            password: hashedPassword,
+            phone: "01700000000",
+            password: enVars.ADMIN_PASSWORD,
             isApproved: true,
             auths: [authProvider],
         }

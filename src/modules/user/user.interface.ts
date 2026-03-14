@@ -21,10 +21,11 @@ export interface IUser extends Document {
   name: string
   email: string
   phone: string
-  profileImg: string
+  profileImg?: string
   password: string
   role: Role
-  isActive: boolean
+  isActive: IsActive
+  auths?: IAuthProvider[]
   isApproved: boolean // agent
   createdAt: Date
   updatedAt: Date

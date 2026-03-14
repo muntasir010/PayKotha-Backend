@@ -5,7 +5,7 @@ import AppError from "../../errorHelper/AppError";
 import { sendResponse } from "../../utils/sendResponse";
 import { generateToken } from "../../utils/jwt";
 import { enVars } from "../../config/env";
-import { AuthRequest } from "../user/user.interface";
+import { AuthRequest, IsActive, Role } from "../user/user.interface";
 import catchAsync from "../../utils/catchAsync";
 import { Wallet } from "../wallet/wallet.model";
 
@@ -26,7 +26,7 @@ export const register = async (req: Request, res: Response) => {
   const token = generateToken(
     { id: user._id, role: user.role },
     enVars.JWT_ACCESS_SECRET,
-    enVars.JWT_ACCESS_EXPIRES
+    enVars.JWT_ACCESS_EXPIRES,
   );
 
   res.cookie("token", token, {
@@ -69,28 +69,35 @@ export const login = async (req: Request, res: Response) => {
   }
 
   // Check if user is active
-  if (!user.isActive) {
-    throw new AppError(httpStatus.UNAUTHORIZED, "Account is deactivated");
+  if (user.role !== Role.ADMIN) {
+    const userStatus = String(user.isActive).toUpperCase();
+
+    if (userStatus === IsActive.INACTIVE || userStatus === IsActive.BLOCKED) {
+      throw new AppError(
+        httpStatus.UNAUTHORIZED,
+        "Your account is currently inactive or blocked.",
+      );
+    }
   }
 
   // Check if agent is approved
   if (user.role === "AGENT" && !user.isApproved) {
     throw new AppError(
       httpStatus.UNAUTHORIZED,
-      "Agent account is not approved yet"
+      "Agent account is not approved yet",
     );
   }
 
   const token = generateToken(
     { id: user._id.toString(), email: user.email, role: user.role },
     enVars.JWT_ACCESS_SECRET,
-    enVars.JWT_ACCESS_EXPIRES
+    enVars.JWT_ACCESS_EXPIRES,
   );
 
   res.cookie("token", token, {
     httpOnly: true,
     secure: true,
-   sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+    sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
   });
 
   return sendResponse(res, {
@@ -122,7 +129,6 @@ export const logout = catchAsync(async (req: AuthRequest, res: Response) => {
   });
 });
 
-
 export const getProfile = catchAsync(
   async (req: AuthRequest, res: Response) => {
     const user = await User.findById(req.user?.id);
@@ -148,7 +154,7 @@ export const getProfile = catchAsync(
           role: user.role,
           isActive: user.isActive,
           isApproved: user.isApproved,
-          profileImg: user.profileImg || null, 
+          profileImg: user.profileImg || null,
         },
         wallet: wallet
           ? {
@@ -159,5 +165,5 @@ export const getProfile = catchAsync(
           : null,
       },
     });
-  }
+  },
 );
