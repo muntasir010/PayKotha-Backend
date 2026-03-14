@@ -6,6 +6,6 @@ import { UserController } from "./user.controller";
 const router = Router();
 
 router.get("/search", checkAuth(Role.USER,Role.AGENT, Role.ADMIN), UserController.searchUserByName);
-router.put("/update", checkAuth(Role.USER,Role.AGENT, Role.ADMIN), UserController.updateUser);
+router.patch("/update", checkAuth(Role.USER,Role.AGENT, Role.ADMIN), UserController.updateUser);
 
 export const UserRoutes = router;

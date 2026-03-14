@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Request, Response } from "express";
 import httpStatus from "http-status-codes";
 import catchAsync from "../../utils/catchAsync";
@@ -17,7 +18,7 @@ const createUser = catchAsync(async (req: Request, res: Response) => {
 });
 
 const updateUser = catchAsync(async (req: Request, res: Response) => {
-  const userId = req.params.id;
+  const userId = (req.user as any).id; 
   const verifiedToken = req.user as JwtPayload;
   const payload = req.body;
 
