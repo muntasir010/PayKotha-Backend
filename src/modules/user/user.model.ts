@@ -44,6 +44,10 @@ const userSchema = new Schema<IUser>(
         return this.role === Role.AGENT ? true : false;
       },
     },
+    isDeleted: {
+      type: Boolean,
+      default: false
+    },
   },
   {
     timestamps: true,

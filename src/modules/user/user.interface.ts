@@ -25,6 +25,7 @@ export interface IUser extends Document {
   password: string
   role: Role
   isActive: IsActive
+  isDeleted: boolean;
   auths?: IAuthProvider[]
   isApproved: boolean // agent
   createdAt: Date
