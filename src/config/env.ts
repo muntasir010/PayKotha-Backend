@@ -16,6 +16,8 @@ interface EnvConfig {
   ADMIN_PASSWORD: string;
   FRONTEND_URL: string;
   EXPRESS_SESSION_SECRET: string;
+  GEMINI_API_KEY: string;
+  HUGGINGFACE_API_KEY: string;
 }
 
 const loadEnvVariables = (): EnvConfig => {
@@ -32,6 +34,8 @@ const loadEnvVariables = (): EnvConfig => {
     "ADMIN_PASSWORD",
     "FRONTEND_URL",
     "EXPRESS_SESSION_SECRET",
+    "GEMINI_API_KEY",
+    "HUGGINGFACE_API_KEY",
   ];
 
   requiredEnvVariable.forEach((key) => {
@@ -53,6 +57,8 @@ const loadEnvVariables = (): EnvConfig => {
     ADMIN_PASSWORD: process.env.ADMIN_PASSWORD as string,
     FRONTEND_URL: process.env.FRONTEND_URL as string,
     EXPRESS_SESSION_SECRET: process.env.EXPRESS_SESSION_SECRET as string,
+    GEMINI_API_KEY: process.env.GEMINI_API_KEY as string,
+    HUGGINGFACE_API_KEY: process.env.HUGGINGFACE_API_KEY as string,
   };
 };
 

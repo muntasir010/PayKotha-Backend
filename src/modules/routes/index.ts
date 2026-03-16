@@ -5,6 +5,7 @@ import { walletRoutes } from "../wallet/wallet.routes";
 import { adminRoutes } from "../admin/admin.routes";
 import { UserRoutes } from "../user/user.routes";
 import { messageRoutes } from "../message/message.routes";
+import { AIRoutes } from "../ai/ai.routes";
 
 export const router = Router();
 
@@ -32,6 +33,10 @@ const moduleRoutes = [
   {
     path: "/admin",
     route: adminRoutes,
+  },
+  {
+    path: "/ai",
+    route: AIRoutes
   },
 ];
 
