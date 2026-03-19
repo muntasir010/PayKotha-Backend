@@ -93,7 +93,7 @@ curl -X POST http://localhost:5000/api/v1/user/register \
   -d '{"name":"John Doe","email":"john@example.com","phone":"01234512390","password":"A@012344","role":"USER"}'
 
 # Login
-curl -X POST http://localhost:5000/api/auth/login \
+curl -X POST http://localhost:5000/api/v1/auth/login \
   -H "Content-Type: application/json" \
   -d '{"email":"john@example.com","password":"password123"}'
 \`\`\`
@@ -102,10 +102,9 @@ curl -X POST http://localhost:5000/api/auth/login \
 ### Test Accounts (after running seed script)
 
 \`\`\`
-Admin: admin@digitalwallet.com / admin123
-User 1: john@example.com / user123  
-User 2: jane@example.com / user123
-Agent: agent@example.com / agent123
+Admin: admin@mail.com / 11111111
+User : user@mail.com / 11111111 
+Agent: agent@mail.com / 11111111
 \`\`\`
 
 ## 📚 API Endpoints
@@ -168,16 +167,16 @@ src/
 │   ├── user/           # User model and logic
 │   ├── wallet/         # Wallet operations
 │   ├── transaction/    # Transaction management
-│   ├── routes/    # Transaction management
+│   ├── routes/         # Transaction management
 │   └── admin/          # Admin operations
-├── config/            # Database configuration
-├── errorHelper/            # Database configuration
+├── config/             # Database configuration
+├── errorHelper/        # Database configuration
 ├── helpers/            # Database configuration
 ├── middlewares/        # Custom middlewares
-├── utils/             # Utility functions
-├── interface/             # TypeScript type definitions
-├── app.ts             # Express app setup
-└── server.ts          # Server entry point
+├── utils/              # Utility functions
+├── interface/          # TypeScript type definitions
+├── app.ts              # Express app setup
+└── server.ts           # Server entry point
 \`\`\`
 
 ## 🔒 Security Features
@@ -228,11 +227,12 @@ node scripts/seed-data.js
 | Variable | Description | Default |
 |----------|-------------|---------|
 | `NODE_ENV` | Environment mode | `development` |
-| `PORT` | Server port | `5000` |
+| `PORT` | Server port | `3000` |
 | `MONGODB_URI` | MongoDB connection string | `mongodb://localhost:27017/digital-wallet` |
 | `JWT_SECRET` | JWT signing secret | **Required** |
-| `JWT_EXPIRES_IN` | JWT expiration time | `7d` |
-| `BCRYPT_SALT_ROUNDS` | Bcrypt salt rounds | `12` |
+| `JWT_ACCESS_EXPIRES_IN` | JWT access expiration time | `1d` |
+| `JWT_REFRESH_EXPIRES= 30d` | JWT refresh expiration time | `30d` |
+| `BCRYPT_SALT_ROUNDS` | Bcrypt salt rounds | `10` |
 
 ## 🐛 Error Handling
 
